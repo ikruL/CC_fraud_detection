@@ -1,15 +1,17 @@
-
-
 import os
 import joblib
 import models
-from preprocessing import load_data, clean_data, preprocess_data, SEED
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.metrics import classification_report, average_precision_score, roc_auc_score
 
+from sklearn.pipeline import Pipeline
 
-SEED = 42  # Set a random seed
-DATA_PATH = '../data/creditcard.csv'
-MODEL_DIR = '../models'
+from preprocessing import load_data, clean_data, preprocess_data, SEED
+
+
+DATA_PATH = "../data/creditcard.csv"
+MODEL_DIR = "../models"
 
 os.makedirs(MODEL_DIR, exist_ok=True)
 
@@ -23,40 +25,64 @@ def train():
     df = clean_data(df)
 
     print("Preprocessing data...")
-    X_train, X_test, y_train, y_test, scaler = preprocess_data(df)
+    X_train, X_test, y_train, y_test = preprocess_data(df)
 
-    # Initialize models
-    models_dict = models.get_models()
+    pos = sum(y_train)
+    neg = len(y_train) - pos
+    models_dict = models.get_models(scale_pos_weight=neg/pos)
 
     best_model = None
-    best_score = 0
-    best_model_name = ""
+    best_score = -1
+    best_name = ""
+
+    skf = StratifiedKFold(
+        n_splits=5,
+        shuffle=True,
+        random_state=SEED
+    )
 
     for name, model in models_dict.items():
 
-        print(f"Training {name}...")
-        model.fit(X_train, y_train)
+        print(f"\nTraining {name}...")
 
-        y_pred = model.predict(X_test)
-        y_proba = model.predict_proba(X_test)[:, 1]
+        pipeline = Pipeline([
+            ("scaler", StandardScaler()),
+            ("model", model)
+        ])
 
-        pr_auc = average_precision_score(y_test, y_proba)
+        # Cross validation score
+        cv_scores = cross_val_score(
+            pipeline,
+            X_train,
+            y_train,
+            cv=skf,
+            scoring="average_precision",
+            n_jobs=-1
+        )
 
-        print(f"ROC AUC Score: {roc_auc_score(y_test, y_proba):.4f}")
-        print(f"Average Precision Score for {name}: {pr_auc:.4f}")
-        print(
-            f"Classification Report for {name}:\n{classification_report(y_test, y_pred)}")
-        # Update best model
-        if pr_auc > best_score:
-            best_score = pr_auc
-            best_model = model
-            best_model_name = name
+        print(f"CV PR-AUC: {cv_scores.mean():.4f}")
 
-    # Save the best model
-    print(
-        f"Best model: {best_model_name} with Average Precision Score: {best_score:.4f}")
-    joblib.dump(best_model, os.path.join(MODEL_DIR, 'best_model.pkl'))
-    joblib.dump(scaler, os.path.join(MODEL_DIR, 'scaler.pkl'))
+        # Train full pipeline
+        pipeline.fit(X_train, y_train)
+
+        y_pred = pipeline.predict(X_test)
+        y_proba = pipeline.predict_proba(X_test)[:, 1]
+
+        print(f"ROC-AUC: {roc_auc_score(y_test, y_proba):.4f}")
+
+        print(classification_report(y_test, y_pred))
+
+        if cv_scores.mean() > best_score:
+
+            best_score = cv_scores.mean()
+            best_model = pipeline
+            best_name = name
+
+    print(f"\nBest model: {best_name}")
+    print(f"Best CV PR-AUC: {best_score:.4f}")
+
+    print("Saving best model ...")
+    joblib.dump(best_model, f"{MODEL_DIR}/best_model.pkl")
 
 
 if __name__ == "__main__":

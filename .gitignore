@@ -1,5 +1,11 @@
+# data
 data/
 *.csv
 
-src/__pycache__/
+# models
+models/
+*.pkl
 
+# python
+__pycache__/
+*.pyc
