@@ -12,6 +12,10 @@ Built with focus on **imbalanced data handling**, **production-grade practices**
 
 </div>
 
+## API DEMO
+
+![API Demo](/images/demo.gif)
+
 ## Project Highlights
 
 - Complete **ML pipeline**: from raw data to live prediction API
@@ -30,38 +34,41 @@ Achieved excellent fraud-class performance after threshold optimization.
 → **Source**: [Kaggle – Credit Card Fraud Detection](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
 
 **Features**:
+
 - `Time` – seconds since first transaction
 - `V1`–`V28` – PCA-transformed features
 - `Amount` – transaction amount
 - `Class` – target (0 = normal, 1 = fraud)
 
 **Key statistics**:
+
 - Total transactions: **284,807**
 - Fraud cases: **492** (~**0.172%** – highly imbalanced)
 
 ### Download the dataset
+
 1. Go to: https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud
 2. Sign in / create a free Kaggle account
 3. Click **Download** (file: `creditcard.csv` ~150 MB)
 4. Place the file in the `data/` folder (create if needed)
-> **Note**: The dataset is **not** included in this repository due to size and licensing.
+   > **Note**: The dataset is **not** included in this repository due to size and licensing.
 
 ## Project Structure
 
 ```text
 fraud_detection/
-├── data/                    # Put creditcard.csv here 
+├── data/                    # Put creditcard.csv here
 ├── notebooks/
 │   └── 01_eda.ipynb         # EDA
 ├── src/
-│   ├── preprocessing.py     
-│   ├── models.py            
-│   ├── train.py             
-│   ├── predict.py           
-│   ├── evaluation.py        
-│   ├── interpret.py         
-│   └── api.py               
-├── models/                  
+│   ├── preprocessing.py
+│   ├── models.py
+│   ├── train.py
+│   ├── predict.py
+│   ├── evaluation.py
+│   ├── interpret.py
+│   └── api.py
+├── models/
 │   ├── best_model.pkl
 │   ├── best_scaler.pkl
 │   └── best_threshold.pkl
@@ -73,6 +80,7 @@ fraud_detection/
 ## Installation
 
 1. Installation
+
 ```
 # Clone repository
 git clone https://github.com/YOUR-USERNAME/credit-card-fraud-detection.git
@@ -87,28 +95,29 @@ venv\Scripts\activate       # Windows
 # Install dependencies
 pip install -r requirements.txt
 ```
+
 2. Train the model
+
 ```
 python -m src.train
 ```
+
 3. Run API
+
 ```
 uvicorn src.api:app --reload --port 8000
 ```
+
 → Open: http://127.0.0.1:8000/docs
 
-
 ## Model Performance (Best – XGBoost)
-- ROC-AUC: 0.980
-- PR-AUC: 0.840
-- Precision (fraud): 0.96
-- Recall (fraud): 0.78
-- F1 (fraud): ~0.86
+
+| Metric            | Value |
+| ----------------- | ----- |
+| Precision (Fraud) | 0.96  |
+| Recall (Fraud)    | 0.78  |
+| PR-AUC            | 0.84  |
 
 ## License
+
 MIT License – feel free to use this project for learning purposes.
-
-
-
-
-
