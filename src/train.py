@@ -9,7 +9,7 @@ from sklearn.metrics import classification_report, average_precision_score, roc_
 
 SEED = 42  # Set a random seed
 DATA_PATH = '../data/creditcard.csv'
-MODEL_DIR = 'models'
+MODEL_DIR = '../models'
 
 os.makedirs(MODEL_DIR, exist_ok=True)
 
