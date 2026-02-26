@@ -4,26 +4,27 @@ import os
 
 
 MODEL_DIR = '../models'
-THRESHOLD = 0.5
 
 
 def load_model():
 
     model_path = os.path.join(MODEL_DIR, 'best_model.pkl')
+    threshold_path = os.path.join(MODEL_DIR, 'best_threshold.pkl')
 
     if not os.path.exists(model_path):
         raise FileNotFoundError(
             "Model not found. Please train the model first.")
 
     model = joblib.load(model_path)
+    threshold = joblib.load(threshold_path)
 
-    return model
+    return model, threshold
 
 
 def predict(df):
-    model = load_model()
+    model, threshold = load_model()
 
     prob = model.predict_proba(df)[:, 1]
-    pred = (prob >= THRESHOLD).astype(int)
+    pred = (prob >= threshold).astype(int)
 
     return pred, prob

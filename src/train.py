@@ -4,7 +4,7 @@ import models
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.metrics import classification_report, average_precision_score, roc_auc_score
-
+from evaluation import find_best_threshold
 from sklearn.pipeline import Pipeline
 
 from preprocessing import load_data, clean_data, preprocess_data, SEED
@@ -67,6 +67,8 @@ def train():
 
         y_pred = pipeline.predict(X_test)
         y_proba = pipeline.predict_proba(X_test)[:, 1]
+        best_threshold = find_best_threshold(y_test, y_proba)
+        print(f"Best threshold: {best_threshold:.2f}")
 
         print(f"ROC-AUC: {roc_auc_score(y_test, y_proba):.4f}")
 
@@ -83,6 +85,7 @@ def train():
 
     print("Saving best model ...")
     joblib.dump(best_model, f"{MODEL_DIR}/best_model.pkl")
+    joblib.dump(best_threshold, f"{MODEL_DIR}/best_threshold.pkl")
 
 
 if __name__ == "__main__":
