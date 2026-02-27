@@ -99,7 +99,8 @@ pip install -r requirements.txt
 2. Train the model
 
 ```
-python -m src.train
+cd src
+python train.py
 ```
 
 3. Run API
