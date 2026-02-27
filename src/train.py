@@ -3,7 +3,7 @@ import joblib
 import models
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from sklearn.metrics import classification_report, average_precision_score, roc_auc_score
+from sklearn.metrics import classification_report, roc_auc_score
 from evaluation import find_best_threshold
 from sklearn.pipeline import Pipeline
 
@@ -67,6 +67,7 @@ def train():
 
         y_pred = pipeline.predict(X_test)
         y_proba = pipeline.predict_proba(X_test)[:, 1]
+
         best_threshold = find_best_threshold(y_test, y_proba)
         print(f"Best threshold: {best_threshold:.2f}")
 
